@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:frontend/core/theme/app_theme.dart';
+import 'package:frontend/controllers/insight_provider.dart';
+import 'package:frontend/controllers/journal_provider.dart';
+import 'package:frontend/modules/dashboard/screens/dashboard_screen.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => JournalProvider()),
+        ChangeNotifierProvider(create: (_) => InsightProvider()),
+      ],
+      child: const MindMirrorApp(),
+    ),
+  );
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MindMirrorApp extends StatelessWidget {
+  const MindMirrorApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp(
+      title: 'MindMirror',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: const DashboardScreen(),
     );
   }
 }

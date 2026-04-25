@@ -86,7 +86,7 @@ class DataService:
         """
         Create a new entry with real sentiment extraction via Google Gemini.
         """
-        import google.generativeai as genai
+        from google import genai
         import instructor
         from pydantic import BaseModel, Field
 
@@ -95,13 +95,14 @@ class DataService:
             tags: List[str] = Field(..., description="List of emotion or situational tags (e.g., 'tired', 'gym', 'stressed')")
             triggers: List[str] = Field(..., description="List of specific triggers causing the emotion (e.g., 'lack of sleep', 'academic pressure')")
 
-        genai.configure(api_key=os.environ.get("GOOGLE_API_KEY", "AIzaSyApC3hl9KANowmBplAcvEQ-WFkjX-6K2Ek"))
-        model = genai.GenerativeModel("gemini-pro")
-        client = instructor.from_gemini(model, mode=instructor.Mode.GEMINI_JSON)
+        api_key = os.environ.get("GOOGLE_API_KEY", "AIzaSyApC3hl9KANowmBplAcvEQ-WFkjX-6K2Ek")
+        genai_client = genai.Client(api_key=api_key)
+        client = instructor.from_genai(genai_client)
         
         try:
             print(f"Calling Gemini for extraction on text: {raw_text}")
             extracted = client.chat.completions.create(
+                model="gemini-1.5-flash",
                 response_model=SentimentExtraction,
                 messages=[
                     {"role": "system", "content": "You are an AI that analyzes journal entries. Extract the sentiment score (-1.0 to 1.0), situational/emotional tags, and root triggers for the emotions."},
@@ -165,7 +166,9 @@ data_service = DataService()
 # ---------------------------------------------------------------------------
 @app.post("/api/v1/entries", status_code=201)
 async def submit_entry(request: EntryRequest):
+    print(f"📥 [Backend] POST /api/v1/entries called with payload: {request.raw_text}")
     if not request.raw_text or not request.raw_text.strip():
+        print("❌ [Backend] Validation failed: raw_text is empty")
         error = ErrorModel(
             error=ErrorDetail(
                 code="VALIDATION_FAILED",
@@ -176,14 +179,21 @@ async def submit_entry(request: EntryRequest):
         return JSONResponse(status_code=400, content=error.model_dump())
 
     entry = data_service.add_entry(request.raw_text)
+    print("✅ [Backend] Added entry to DataService successfully")
     return entry
 
 
 @app.get("/api/v1/entries")
 async def get_entries(limit: int = 10, offset: int = 0):
-    return data_service.get_entries(limit=limit, offset=offset)
+    print(f"📥 [Backend] GET /api/v1/entries called with limit={limit}, offset={offset}")
+    result = data_service.get_entries(limit=limit, offset=offset)
+    print(f"✅ [Backend] Returning {len(result.get('data', []))} entries")
+    return result
 
 
 @app.get("/api/v1/insights/current")
 async def get_current_insight():
-    return data_service.get_current_insight()
+    print("📥 [Backend] GET /api/v1/insights/current called")
+    insight = data_service.get_current_insight()
+    print("✅ [Backend] Returning current insight")
+    return insight

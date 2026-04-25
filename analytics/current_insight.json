@@ -1,0 +1,24 @@
+{
+  "id": "f276b463-4e97-4244-ac62-d4032ecf8a87",
+  "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+  "summary": "Your mood consistently drops on days with less than 6 hours of sleep.",
+  "correlations": [
+    {
+      "trigger": "lack of sleep",
+      "impact": "negative",
+      "confidence_score": 0.91
+    },
+    {
+      "trigger": "academic pressure",
+      "impact": "negative",
+      "confidence_score": 0.59
+    },
+    {
+      "trigger": "exercise",
+      "impact": "positive",
+      "confidence_score": 0.36
+    }
+  ],
+  "suggested_action": "Consider adjusting your evening routine tonight to prioritize rest.",
+  "generated_at": "2026-04-25T20:05:02.958990Z"
+}

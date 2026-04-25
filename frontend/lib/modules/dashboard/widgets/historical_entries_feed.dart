@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:frontend/models/journal_entry.dart';
 
 class HistoricalEntriesFeed extends StatelessWidget {
@@ -43,7 +44,7 @@ class HistoricalEntriesFeed extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              entry.createdAt.toString().split(' ')[0], // Simple date formatting
+              DateFormat('MMM d, yyyy').format(entry.createdAt),
               style: theme.textTheme.labelMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),

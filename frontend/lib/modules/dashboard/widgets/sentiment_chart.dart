@@ -1,4 +1,6 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:frontend/models/journal_entry.dart';
 
 class SentimentChart extends StatefulWidget {
@@ -107,8 +109,12 @@ class _SentimentChartState extends State<SentimentChart>
 
   int? _indexFromX(double dx, List<JournalEntry> entries) {
     if (entries.length < 2) return null;
-    // We don't have the render box size here easily; approximate
-    return null;
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return null;
+    final chartW = renderBox.size.width - 36.0; // paddingLeft
+    final ratio = (dx - 36.0) / chartW;
+    final index = (ratio * (entries.length - 1)).round();
+    return index.clamp(0, entries.length - 1);
   }
 
   Widget _buildTooltip(JournalEntry entry, ThemeData theme) {
@@ -131,7 +137,7 @@ class _SentimentChartState extends State<SentimentChart>
           Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 8),
           Text(
-            "${entry.createdAt.toString().split(' ')[0]}  •  ${score.toStringAsFixed(2)}",
+            "${DateFormat('MMM d, yyyy').format(entry.createdAt)}  •  ${score.toStringAsFixed(2)}",
             style: theme.textTheme.labelSmall,
           ),
         ],
@@ -278,7 +284,7 @@ class _SentimentPainter extends CustomPainter {
   void _drawLabel(Canvas canvas, String text, Offset offset, TextStyle style) {
     final tp = TextPainter(
       text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
+      textDirection: ui.TextDirection.ltr,
     )..layout();
     tp.paint(canvas, offset);
   }

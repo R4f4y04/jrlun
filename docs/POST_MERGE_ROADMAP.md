@@ -86,7 +86,7 @@ This phase connects Dar's FastAPI orchestration layer to Talal's Supabase databa
 
 - Verify the backend's `POST /api/v1/entries` endpoint:
   1. Receives `raw_text` from the frontend
-  2. Sends it through the LLM orchestration (GPT-4o-mini via `instructor`)
+  2. Sends it through the LLM orchestration (Google Gemini via `instructor`)
   3. Extracts `sentiment_score`, `tags`, and `triggers`
   4. Stores the enriched entry in Supabase
   5. Returns the complete `JournalEntry` JSON to the frontend
@@ -187,7 +187,7 @@ Centralize all config:
 # .env
 SUPABASE_URL=http://supabase-kong:8000
 SUPABASE_ANON_KEY=<key>
-OPENAI_API_KEY=<key>
+GOOGLE_API_KEY=<key>
 API_BASE_URL=http://backend:8000
 ```
 

@@ -84,52 +84,40 @@ class DataService:
 
     def add_entry(self, raw_text: str) -> dict:
         """
-        Create a new entry with mock sentiment extraction.
+        Create a new entry with real sentiment extraction via Google Gemini.
+        """
+        import google.generativeai as genai
+        import instructor
+        from pydantic import BaseModel, Field
 
-        In production, this would use Google Gemini via `instructor`:
-            import google.generativeai as genai
-            genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            client = instructor.from_gemini(model, mode=instructor.Mode.GEMINI_JSON)
-            entry = client.chat.completions.create(
-                response_model=JournalEntry,
-                messages=[{"role": "user", "content": raw_text}],
+        class SentimentExtraction(BaseModel):
+            sentiment_score: float = Field(..., description="Sentiment score from -1.0 (very negative) to 1.0 (very positive)")
+            tags: List[str] = Field(..., description="List of emotion or situational tags (e.g., 'tired', 'gym', 'stressed')")
+            triggers: List[str] = Field(..., description="List of specific triggers causing the emotion (e.g., 'lack of sleep', 'academic pressure')")
+
+        genai.configure(api_key=os.environ.get("GOOGLE_API_KEY", "AIzaSyApC3hl9KANowmBplAcvEQ-WFkjX-6K2Ek"))
+        model = genai.GenerativeModel("gemini-pro")
+        client = instructor.from_gemini(model, mode=instructor.Mode.GEMINI_JSON)
+        
+        try:
+            print(f"Calling Gemini for extraction on text: {raw_text}")
+            extracted = client.chat.completions.create(
+                response_model=SentimentExtraction,
+                messages=[
+                    {"role": "system", "content": "You are an AI that analyzes journal entries. Extract the sentiment score (-1.0 to 1.0), situational/emotional tags, and root triggers for the emotions."},
+                    {"role": "user", "content": raw_text}
+                ],
                 max_retries=3
             )
-        """
-        # Simple keyword-based mock extraction
-        text_lower = raw_text.lower()
-        sentiment = 0.0
-        tags = []
-        triggers = []
-
-        # Sleep-related
-        if any(w in text_lower for w in ["tired", "exhausted", "sleep", "insomnia", "fatigue"]):
-            sentiment -= 0.4
-            tags.extend(["tired", "fatigue"])
-            triggers.append("lack of sleep")
-
-        # Exercise-related
-        if any(w in text_lower for w in ["gym", "workout", "exercise", "run", "jog"]):
-            sentiment += 0.4
-            tags.append("gym")
-            triggers.append("exercise")
-
-        # Stress-related
-        if any(w in text_lower for w in ["stress", "anxious", "worried", "deadline", "pressure", "exam"]):
-            sentiment -= 0.3
-            tags.extend(["stressed"])
-            triggers.append("academic pressure")
-
-        # Positive keywords
-        if any(w in text_lower for w in ["happy", "great", "wonderful", "amazing", "good", "energized"]):
-            sentiment += 0.3
-            tags.append("happy")
-
-        # Default fallback
-        if not tags:
+            sentiment = extracted.sentiment_score
+            tags = extracted.tags
+            triggers = extracted.triggers
+        except Exception as e:
+            print(f"[ERROR] Gemini extraction failed: {e}")
+            # Fallback values if extraction fails
+            sentiment = 0.0
             tags = ["general"]
-            sentiment = 0.1
+            triggers = []
 
         sentiment = max(-1.0, min(1.0, sentiment))
 

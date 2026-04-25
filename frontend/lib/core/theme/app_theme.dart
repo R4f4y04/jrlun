@@ -16,7 +16,7 @@ class AppTheme {
         onError: Color(0xFFFFFFFF),
         surface: Color(0xFFF3E5F5),
         onSurface: Color(0xFF1A001A),
-        surfaceContainerHighest: Color(0xFFE1BEE7), // Using surfaceContainerHighest for surfaceVariant
+        surfaceContainerHighest: Color(0xFFE1BEE7),
         onSurfaceVariant: Color(0xFF49454F),
       ),
       textTheme: const TextTheme(
@@ -30,12 +30,12 @@ class AppTheme {
         bodyMedium: TextStyle(fontWeight: FontWeight.w400),
         labelLarge: TextStyle(fontWeight: FontWeight.w400),
       ),
-      cardTheme: CardTheme(
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      cardTheme: const CardThemeData(
+        elevation: 0.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
       ),
-      chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+      chipTheme: const ChipThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
       ),
     );
   }
@@ -55,7 +55,7 @@ class AppTheme {
         onError: Color(0xFF601410),
         surface: Color(0xFF301934),
         onSurface: Color(0xFFE6E6FA),
-        surfaceContainerHighest: Color(0xFF51414F), // Using surfaceContainerHighest for surfaceVariant
+        surfaceContainerHighest: Color(0xFF51414F),
         onSurfaceVariant: Color(0xFFCAC4D0),
       ),
       textTheme: const TextTheme(
@@ -69,12 +69,12 @@ class AppTheme {
         bodyMedium: TextStyle(fontWeight: FontWeight.w400),
         labelLarge: TextStyle(fontWeight: FontWeight.w400),
       ),
-      cardTheme: CardTheme(
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      cardTheme: const CardThemeData(
+        elevation: 0.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
       ),
-      chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+      chipTheme: const ChipThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
       ),
     );
   }

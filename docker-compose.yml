@@ -1,0 +1,57 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: mindmirror-backend
+    ports:
+      - "8001:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - DATABASE_URL=postgresql://postgres:postgres@supabase-db:5432/postgres
+    volumes:
+      - ./analytics:/app/analytics
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - mindmirror-network
+
+  supabase-db:
+    image: supabase/postgres:15.1.0.147
+    container_name: supabase-db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./infrastructure/migrations:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - mindmirror-network
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: supabase-db
+    networks:
+      - mindmirror-network
+
+volumes:
+  pgdata:
+
+networks:
+  mindmirror-network:
+    driver: bridge
+    name: mindmirror-network

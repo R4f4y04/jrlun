@@ -5,13 +5,16 @@ services:
       dockerfile: backend/Dockerfile
     container_name: mindmirror-backend
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - DATABASE_URL=postgresql://postgres:postgres@supabase-db:5432/postgres
     volumes:
       - ./analytics:/app/analytics
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - mindmirror-network
 
@@ -25,6 +28,12 @@ services:
       - "5432:5432"
     volumes:
       - ./infrastructure/migrations:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - mindmirror-network
 
@@ -38,6 +47,9 @@ services:
       ADMINER_DEFAULT_SERVER: supabase-db
     networks:
       - mindmirror-network
+
+volumes:
+  pgdata:
 
 networks:
   mindmirror-network:

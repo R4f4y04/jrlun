@@ -1,0 +1,49 @@
+{
+  "branch": "feature/backend-dar",
+  "domain": "Orchestration (FastAPI & LLM)",
+  "owner": "Dar",
+  "summary": "Setup FastAPI backend skeleton, enforced JSON contracts with Pydantic models, created mock orchestration service, and added functional/performance tests.",
+  "changes": [
+    {
+      "file": "backend/main.py",
+      "action": "created",
+      "description": "Initialized FastAPI application. Implemented MockOrchestrationService to simulate LLM interaction. Added POST /api/v1/entries, GET /api/v1/entries, and GET /api/v1/insights/current routes."
+    },
+    {
+      "file": "backend/models.py",
+      "action": "created",
+      "description": "Defined strict Pydantic models (JournalEntry, InsightModel, Correlation, EntryRequest, ErrorModel, ErrorDetail) based on docs/JSON_CONTRACT.md to prevent hallucination."
+    },
+    {
+      "file": "backend/.branch_context.md",
+      "action": "created",
+      "description": "Logged the API surface area, schema enforcement logic, LLM config, and integration demands as required by the asymmetric context logging protocol."
+    },
+    {
+      "file": "backend/requirements.txt",
+      "action": "created",
+      "description": "Added required backend dependencies: fastapi, uvicorn, pydantic, instructor, openai, pytest, httpx, pytest-benchmark."
+    },
+    {
+      "file": "backend/test_main.py",
+      "action": "created",
+      "description": "Added functional and performance tests for all endpoints using pytest, FastAPI TestClient, and pytest-benchmark."
+    },
+    {
+      "file": ".gitignore",
+      "action": "created",
+      "description": "Added standard Python exclusions and the virtual environment folder to prevent committing heavy/unnecessary files."
+    },
+    {
+      "file": ".vscode/settings.json",
+      "action": "created",
+      "description": "Configured the default Python interpreter to use the project's virtual environment."
+    }
+  ],
+  "infrastructure_demands": [
+    "Expecting Supabase DB to accept jsonb inserts at supabase-db:5432."
+  ],
+  "frontend_demands": [
+    "Frontend must expect exact structures matching docs/JSON_CONTRACT.md from these API endpoints."
+  ]
+}

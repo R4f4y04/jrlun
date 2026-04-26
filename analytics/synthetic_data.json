@@ -1,0 +1,455 @@
+{
+  "data": [
+    {
+      "id": "c92e7aab-e232-416a-8533-92fe7cbfd2d5",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.2 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": 0.18,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-03-26T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "571337b6-fe20-4570-84cc-68129af93cf7",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 5.1 hours of sleep last night. Feeling completely drained. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": -0.61,
+      "tags": [
+        "studying",
+        "fatigue",
+        "stressed",
+        "brain-fog",
+        "tired"
+      ],
+      "triggers": [
+        "lack of sleep",
+        "academic pressure"
+      ],
+      "created_at": "2026-03-27T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "56ecbd24-f957-49c4-a6c5-d606374ef4a2",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 5.5 hours of sleep last night. Feeling completely drained. Hit the gym today. It was a solid workout. Enjoying the weekend downtime.",
+      "sentiment_score": -0.17,
+      "tags": [
+        "fatigue",
+        "brain-fog",
+        "tired",
+        "gym",
+        "weekend"
+      ],
+      "triggers": [
+        "lack of sleep",
+        "exercise"
+      ],
+      "created_at": "2026-03-28T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "91cafbd7-f419-4a65-b8f9-2b9843a21ee7",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (6.2 hours). Feeling refreshed. Enjoying the weekend downtime.",
+      "sentiment_score": 0.23,
+      "tags": [
+        "weekend",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-03-29T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "e294a98c-f369-4054-a0a6-7bedee7731ff",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 5.3 hours of sleep last night. Feeling completely drained. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": -0.7,
+      "tags": [
+        "studying",
+        "fatigue",
+        "stressed",
+        "brain-fog",
+        "tired"
+      ],
+      "triggers": [
+        "lack of sleep",
+        "academic pressure"
+      ],
+      "created_at": "2026-03-30T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "14d12fd1-284d-4ac8-8575-47f90577990e",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (6.3 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": 0.11,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-03-31T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "714a158c-342c-4b5d-bc70-a53fdd8cac79",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.8 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": -0.12,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-04-01T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "77a5535d-acb2-411d-85c6-4b13eaaa7c71",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (7.4 hours). Feeling refreshed. Hit the gym today. It was a solid workout. Got a lot of work done today.",
+      "sentiment_score": 0.61,
+      "tags": [
+        "gym",
+        "productive",
+        "rested"
+      ],
+      "triggers": [
+        "exercise"
+      ],
+      "created_at": "2026-04-02T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "bdd72ded-73ab-4117-8356-0badb97173c4",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (7.7 hours). Feeling refreshed. Hit the gym today. It was a solid workout. Got a lot of work done today.",
+      "sentiment_score": 0.51,
+      "tags": [
+        "gym",
+        "productive",
+        "rested"
+      ],
+      "triggers": [
+        "exercise"
+      ],
+      "created_at": "2026-04-03T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "a3060071-d2dc-498c-8932-1be018c3f9f3",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (7.0 hours). Feeling refreshed. Enjoying the weekend downtime.",
+      "sentiment_score": 0.12,
+      "tags": [
+        "weekend",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-04T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "53043288-6eb9-4abd-a714-79d09537e01c",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.1 hours). Feeling refreshed. Enjoying the weekend downtime.",
+      "sentiment_score": 0.39,
+      "tags": [
+        "weekend",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-05T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "95513f50-555a-4f47-9054-2051dcec9de5",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.7 hours). Feeling refreshed. Got a lot of work done today.",
+      "sentiment_score": 0.46,
+      "tags": [
+        "productive",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-06T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "3b581305-b9ef-4342-a719-2cd2429e6eed",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 5.0 hours of sleep last night. Feeling completely drained. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": -0.79,
+      "tags": [
+        "studying",
+        "fatigue",
+        "stressed",
+        "brain-fog",
+        "tired"
+      ],
+      "triggers": [
+        "lack of sleep",
+        "academic pressure"
+      ],
+      "created_at": "2026-04-07T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "13cba98b-e6a5-48ba-9121-6c6bf945b66b",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (10.3 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": 0.06,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-04-08T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "98086305-0fc3-4afd-9461-6290fc5bf74c",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (6.5 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": -0.13,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-04-09T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "d108cf35-4be8-4248-b003-8c9ed6750991",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (7.1 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": 0.3,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-04-10T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "aea1bf1d-7712-40ba-891a-4052fc04d061",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 5.1 hours of sleep last night. Feeling completely drained. Hit the gym today. It was a solid workout. Enjoying the weekend downtime.",
+      "sentiment_score": 0.11,
+      "tags": [
+        "fatigue",
+        "brain-fog",
+        "tired",
+        "gym",
+        "weekend"
+      ],
+      "triggers": [
+        "lack of sleep",
+        "exercise"
+      ],
+      "created_at": "2026-04-11T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "857ea616-3772-443a-aec0-f1e3442dc6ca",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.5 hours). Feeling refreshed. Enjoying the weekend downtime.",
+      "sentiment_score": 0.52,
+      "tags": [
+        "weekend",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-12T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "2521fbe9-5e49-45a3-ba6b-ebfd37793785",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (7.9 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": -0.08,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-04-13T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "63b5a2bc-eb28-4e97-8c87-600183bdd1b0",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 5.4 hours of sleep last night. Feeling completely drained. Got a lot of work done today.",
+      "sentiment_score": -0.4,
+      "tags": [
+        "productive",
+        "brain-fog",
+        "tired",
+        "fatigue"
+      ],
+      "triggers": [
+        "lack of sleep"
+      ],
+      "created_at": "2026-04-14T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "3c3e5b3b-d9ec-4c52-b743-e8a022003ace",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.7 hours). Feeling refreshed. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": 0.29,
+      "tags": [
+        "stressed",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "academic pressure"
+      ],
+      "created_at": "2026-04-15T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "4795a1a1-eef1-4115-b601-fa3615cf9289",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.6 hours). Feeling refreshed. Got a lot of work done today.",
+      "sentiment_score": 0.47,
+      "tags": [
+        "productive",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-16T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "99ba5470-a73f-4d3e-b2e1-b2185b89e20d",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.2 hours). Feeling refreshed. Hit the gym today. It was a solid workout. Got a lot of work done today.",
+      "sentiment_score": 0.94,
+      "tags": [
+        "gym",
+        "productive",
+        "rested"
+      ],
+      "triggers": [
+        "exercise"
+      ],
+      "created_at": "2026-04-17T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "ba4df926-2ecb-4821-afe3-2b40fb84e4ca",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (8.4 hours). Feeling refreshed. Enjoying the weekend downtime.",
+      "sentiment_score": 0.17,
+      "tags": [
+        "weekend",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-18T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "0611e8a1-3649-416c-880d-f015510bcf3f",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 4.1 hours of sleep last night. Feeling completely drained. Enjoying the weekend downtime.",
+      "sentiment_score": -0.44,
+      "tags": [
+        "brain-fog",
+        "tired",
+        "weekend",
+        "fatigue"
+      ],
+      "triggers": [
+        "lack of sleep"
+      ],
+      "created_at": "2026-04-19T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "ab7a8962-6095-41ea-94f5-b2a4ce1a21d4",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (9.2 hours). Feeling refreshed. Hit the gym today. It was a solid workout. Got a lot of work done today.",
+      "sentiment_score": 0.51,
+      "tags": [
+        "gym",
+        "productive",
+        "rested"
+      ],
+      "triggers": [
+        "exercise"
+      ],
+      "created_at": "2026-04-20T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "61c8f265-91cc-4bdb-bbaf-1bc385f68504",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (7.2 hours). Feeling refreshed. Got a lot of work done today.",
+      "sentiment_score": 0.52,
+      "tags": [
+        "productive",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-21T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "e86a51ec-ebcf-470c-8469-eda373af5d7a",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (6.6 hours). Feeling refreshed. Hit the gym today. It was a solid workout. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": 0.41,
+      "tags": [
+        "stressed",
+        "gym",
+        "studying",
+        "rested"
+      ],
+      "triggers": [
+        "exercise",
+        "academic pressure"
+      ],
+      "created_at": "2026-04-22T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "f23dd517-af46-4c9b-a366-66e72405251a",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Only got 5.0 hours of sleep last night. Feeling completely drained. Hit the gym today. It was a solid workout. Spent hours studying. The workload is heavy right now.",
+      "sentiment_score": -0.27,
+      "tags": [
+        "studying",
+        "fatigue",
+        "stressed",
+        "brain-fog",
+        "tired",
+        "gym"
+      ],
+      "triggers": [
+        "lack of sleep",
+        "exercise",
+        "academic pressure"
+      ],
+      "created_at": "2026-04-23T19:58:53.760202+00:00Z"
+    },
+    {
+      "id": "0abecc29-4f43-45fd-91a5-02ac2b77e3c8",
+      "user_id": "4e3c9a57-9629-46d4-ae8e-50921bfce626",
+      "raw_text": "Slept well (6.7 hours). Feeling refreshed. Got a lot of work done today.",
+      "sentiment_score": 0.14,
+      "tags": [
+        "productive",
+        "rested"
+      ],
+      "triggers": [],
+      "created_at": "2026-04-24T19:58:53.760202+00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 30,
+    "has_more": false
+  }
+}

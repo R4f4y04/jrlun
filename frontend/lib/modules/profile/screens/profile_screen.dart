@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/controllers/journal_provider.dart';
+import 'package:frontend/controllers/user_provider.dart';
 import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/core/widgets/glassmorphic_card.dart';
 
@@ -19,28 +20,36 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // ── Avatar ──────────────────────────────────
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: AppTheme.primaryGradient,
-                ),
-                child: const Center(
-                  child: Text(
-                    'A',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Ahmed',
-                style: Theme.of(context).textTheme.headlineSmall,
+              Consumer<UserProvider>(
+                builder: (context, userProvider, _) {
+                  return Column(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppTheme.primaryGradient,
+                        ),
+                        child: Center(
+                          child: Text(
+                            userProvider.name.isNotEmpty ? userProvider.name[0].toUpperCase() : 'A',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        userProvider.name,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 4),
               Text(
@@ -87,9 +96,9 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _SettingsRow(
-                      icon: Icons.settings_rounded,
-                      label: 'Settings',
-                      onTap: () {},
+                      icon: Icons.person_outline_rounded,
+                      label: 'Edit Name',
+                      onTap: () => _showNameDialog(context),
                     ),
                     Divider(
                       color: AppTheme.dividerColor,
@@ -152,6 +161,43 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showNameDialog(BuildContext context) {
+    final provider = context.read<UserProvider>();
+    final controller = TextEditingController(text: provider.name);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.cardColor,
+        title: const Text('Edit Name', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: 'Enter your name',
+            filled: true,
+            fillColor: AppTheme.surface,
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
+            onPressed: () {
+              provider.updateName(controller.text);
+              Navigator.pop(context);
+            },
+            child: const Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }

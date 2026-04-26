@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/controllers/journal_provider.dart';
+import 'package:frontend/controllers/user_provider.dart';
 import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/core/widgets/glassmorphic_card.dart';
 import 'package:frontend/core/widgets/gradient_button.dart';
@@ -56,9 +57,13 @@ class _CheckInScreenState extends State<CheckInScreen> {
               const SizedBox(height: 20),
 
               // ── Greeting ───────────────────────────────────
-              Text(
-                '$_greeting, Ahmed ✨',
-                style: Theme.of(context).textTheme.headlineMedium,
+              Consumer<UserProvider>(
+                builder: (context, userProvider, _) {
+                  return Text(
+                    '$_greeting, ${userProvider.name} ✨',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  );
+                },
               ),
               const SizedBox(height: 8),
               Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/models/journal_entry.dart';
 import 'package:frontend/controllers/journal_provider.dart';
 import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/core/widgets/glassmorphic_card.dart';
@@ -52,7 +53,7 @@ class MoodTrendsScreen extends StatelessWidget {
   }
 
   Widget _buildBestDayCard(
-      BuildContext context, List entries) {
+      BuildContext context, List<JournalEntry> entries) {
     if (entries.isEmpty) return const SizedBox.shrink();
 
     // Find highest scoring entry

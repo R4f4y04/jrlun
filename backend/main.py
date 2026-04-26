@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +15,29 @@ try:
 except ModuleNotFoundError:
     from backend.models import JournalEntry, InsightModel, Correlation, EntryRequest, ErrorModel, ErrorDetail
 
+try:
+    from db import init_db, close_db, get_pool
+except ModuleNotFoundError:
+    from backend.db import init_db, close_db, get_pool
+
+
+# ---------------------------------------------------------------------------
+# Application Lifespan (startup / shutdown)
+# ---------------------------------------------------------------------------
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize DB pool on startup, close on shutdown."""
+    pool = await init_db()
+    data_service._pool = pool
+    if pool:
+        print("[OK] Backend running in DATABASE mode (Postgres)")
+    else:
+        print("[OK] Backend running in JSON-FILE mode (in-memory)")
+    yield
+    await close_db()
+
+
+app = FastAPI(title="MindMirror API Orchestration", lifespan=lifespan)
 try:
     from db import init_db, close_db, get_pool
 except ModuleNotFoundError:
@@ -50,9 +74,13 @@ app.add_middleware(
 
 # ---------------------------------------------------------------------------
 # Data Service: Dual-mode — Postgres DB or in-memory JSON fallback
+# Data Service: Dual-mode — Postgres DB or in-memory JSON fallback
 # ---------------------------------------------------------------------------
 class DataService:
     """
+    Dual-mode data store:
+    - If a Postgres pool is available (DATABASE_URL set), reads/writes to the DB.
+    - Otherwise, falls back to loading analytics JSON files into memory.
     Dual-mode data store:
     - If a Postgres pool is available (DATABASE_URL set), reads/writes to the DB.
     - Otherwise, falls back to loading analytics JSON files into memory.
@@ -63,7 +91,17 @@ class DataService:
         self._insight: Optional[dict] = None
         self._pool = None  # Set during lifespan startup
         self._load_json_fallback()
+        self._pool = None  # Set during lifespan startup
+        self._load_json_fallback()
 
+    @property
+    def use_db(self) -> bool:
+        return self._pool is not None
+
+    # -------------------------------------------------------------------
+    # JSON Fallback Loader
+    # -------------------------------------------------------------------
+    def _load_json_fallback(self):
     @property
     def use_db(self) -> bool:
         return self._pool is not None
@@ -96,7 +134,41 @@ class DataService:
     # GET ENTRIES
     # -------------------------------------------------------------------
     async def get_entries(self, limit: int = 10, offset: int = 0) -> dict:
+    # -------------------------------------------------------------------
+    # GET ENTRIES
+    # -------------------------------------------------------------------
+    async def get_entries(self, limit: int = 10, offset: int = 0) -> dict:
         """Return paginated entries sorted by created_at descending."""
+        if self.use_db:
+            return await self._get_entries_db(limit, offset)
+        return self._get_entries_json(limit, offset)
+
+    async def _get_entries_db(self, limit: int, offset: int) -> dict:
+        """Fetch entries from Postgres."""
+        async with self._pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT id, user_id, raw_text, sentiment_score, tags, triggers, created_at
+                FROM journal_entries
+                ORDER BY created_at DESC
+                LIMIT $1 OFFSET $2
+                """,
+                limit,
+                offset,
+            )
+            total = await conn.fetchval("SELECT COUNT(*) FROM journal_entries")
+
+        entries = [self._row_to_entry(row) for row in rows]
+        return {
+            "data": entries,
+            "meta": {
+                "total": total,
+                "has_more": (offset + limit) < total,
+            },
+        }
+
+    def _get_entries_json(self, limit: int, offset: int) -> dict:
+        """Fetch entries from in-memory JSON list."""
         if self.use_db:
             return await self._get_entries_db(limit, offset)
         return self._get_entries_json(limit, offset)
@@ -134,6 +206,7 @@ class DataService:
         )
         total = len(sorted_entries)
         page = sorted_entries[offset: offset + limit]
+        page = sorted_entries[offset: offset + limit]
         return {
             "data": page,
             "meta": {
@@ -142,6 +215,10 @@ class DataService:
             },
         }
 
+    # -------------------------------------------------------------------
+    # ADD ENTRY
+    # -------------------------------------------------------------------
+    async def add_entry(self, raw_text: str) -> dict:
     # -------------------------------------------------------------------
     # ADD ENTRY
     # -------------------------------------------------------------------
@@ -218,11 +295,40 @@ class DataService:
             "sentiment_score": round(sentiment, 2),
             "tags": tags,
             "triggers": triggers,
+            "tags": tags,
+            "triggers": triggers,
             "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
         self._entries.insert(0, entry)
         return entry
 
+    # -------------------------------------------------------------------
+    # GET INSIGHT
+    # -------------------------------------------------------------------
+    async def get_current_insight(self) -> dict:
+        """Return the latest insight."""
+        if self.use_db:
+            return await self._get_insight_db()
+        return self._get_insight_json()
+
+    async def _get_insight_db(self) -> dict:
+        """Fetch the latest insight from Postgres."""
+        async with self._pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT id, user_id, summary, correlations, suggested_action, generated_at
+                FROM insights
+                ORDER BY generated_at DESC
+                LIMIT 1
+                """
+            )
+        if row:
+            return self._row_to_insight(row)
+        # If no insights in DB, return fallback
+        return self._get_insight_json()
+
+    def _get_insight_json(self) -> dict:
+        """Return the pre-computed insight from JSON or a hardcoded fallback."""
     # -------------------------------------------------------------------
     # GET INSIGHT
     # -------------------------------------------------------------------
@@ -321,6 +427,60 @@ class DataService:
 
 
 # Initialize the data service at module level
+    # -------------------------------------------------------------------
+    # Row Converters (asyncpg Record → dict matching JSON contract)
+    # -------------------------------------------------------------------
+    @staticmethod
+    def _row_to_entry(row) -> dict:
+        """Convert an asyncpg Record to a journal entry dict."""
+        created_at = row["created_at"]
+        if hasattr(created_at, "isoformat"):
+            created_at_str = created_at.isoformat().replace("+00:00", "Z")
+        else:
+            created_at_str = str(created_at)
+
+        # tags/triggers come back as Python lists from asyncpg's jsonb handling
+        tags = row["tags"]
+        triggers = row["triggers"]
+        if isinstance(tags, str):
+            tags = json.loads(tags)
+        if isinstance(triggers, str):
+            triggers = json.loads(triggers)
+
+        return {
+            "id": str(row["id"]),
+            "user_id": str(row["user_id"]),
+            "raw_text": row["raw_text"],
+            "sentiment_score": float(row["sentiment_score"]),
+            "tags": tags,
+            "triggers": triggers,
+            "created_at": created_at_str,
+        }
+
+    @staticmethod
+    def _row_to_insight(row) -> dict:
+        """Convert an asyncpg Record to an insight dict."""
+        generated_at = row["generated_at"]
+        if hasattr(generated_at, "isoformat"):
+            generated_at_str = generated_at.isoformat().replace("+00:00", "Z")
+        else:
+            generated_at_str = str(generated_at)
+
+        correlations = row["correlations"]
+        if isinstance(correlations, str):
+            correlations = json.loads(correlations)
+
+        return {
+            "id": str(row["id"]),
+            "user_id": str(row["user_id"]),
+            "summary": row["summary"],
+            "correlations": correlations,
+            "suggested_action": row["suggested_action"],
+            "generated_at": generated_at_str,
+        }
+
+
+# Initialize the data service at module level
 data_service = DataService()
 
 
@@ -330,7 +490,9 @@ data_service = DataService()
 @app.post("/api/v1/entries", status_code=201)
 async def submit_entry(request: EntryRequest):
     print(f"📥 [Backend] POST /api/v1/entries called with payload: {request.raw_text}")
+    print(f"📥 [Backend] POST /api/v1/entries called with payload: {request.raw_text}")
     if not request.raw_text or not request.raw_text.strip():
+        print("❌ [Backend] Validation failed: raw_text is empty")
         print("❌ [Backend] Validation failed: raw_text is empty")
         error = ErrorModel(
             error=ErrorDetail(
@@ -343,6 +505,8 @@ async def submit_entry(request: EntryRequest):
 
     entry = await data_service.add_entry(request.raw_text)
     print("✅ [Backend] Added entry to DataService successfully")
+    entry = await data_service.add_entry(request.raw_text)
+    print("✅ [Backend] Added entry to DataService successfully")
     return entry
 
 
@@ -352,10 +516,18 @@ async def get_entries(limit: int = 10, offset: int = 0):
     result = await data_service.get_entries(limit=limit, offset=offset)
     print(f"✅ [Backend] Returning {len(result.get('data', []))} entries")
     return result
+    print(f"📥 [Backend] GET /api/v1/entries called with limit={limit}, offset={offset}")
+    result = await data_service.get_entries(limit=limit, offset=offset)
+    print(f"✅ [Backend] Returning {len(result.get('data', []))} entries")
+    return result
 
 
 @app.get("/api/v1/insights/current")
 async def get_current_insight():
+    print("📥 [Backend] GET /api/v1/insights/current called")
+    insight = await data_service.get_current_insight()
+    print("✅ [Backend] Returning current insight")
+    return insight
     print("📥 [Backend] GET /api/v1/insights/current called")
     insight = await data_service.get_current_insight()
     print("✅ [Backend] Returning current insight")

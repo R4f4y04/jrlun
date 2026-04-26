@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/controllers/insight_provider.dart';
 import 'package:frontend/controllers/journal_provider.dart';
-import 'package:frontend/modules/dashboard/screens/dashboard_screen.dart';
+import 'package:frontend/modules/app_shell.dart';
 
 // To fall back to mock services if the backend is down, uncomment these:
 // import 'package:frontend/services/mock_journal_service.dart';
@@ -13,7 +13,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        // Real services (default) — connect to FastAPI at localhost:8000
+        // Real services (default) — connect to FastAPI at localhost:8001
         ChangeNotifierProvider(create: (_) => JournalProvider()),
         ChangeNotifierProvider(create: (_) => InsightProvider()),
 
@@ -33,10 +33,10 @@ class MindMirrorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MindMirror',
-      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: const DashboardScreen(),
+      themeMode: ThemeMode.dark,
+      home: const AppShell(),
     );
   }
 }

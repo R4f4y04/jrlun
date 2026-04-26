@@ -1,380 +1,320 @@
-# 🪞 MindMirror — Complete Project Handover Report
+# 🪞 MindMirror — Complete Technical Handover
 
-**Last Updated**: April 26, 2026, 05:58 AM PKT  
-**Project**: MindMirror — AI-Driven Behavioral Journaling Platform  
-**Context**: Hackathon rapid-build, multi-agent parallel development (4 branches merged)
-
----
-
-## Table of Contents
-
-1. [Project Overview](#1-project-overview)
-2. [Architecture & Tech Stack](#2-architecture--tech-stack)
-3. [Repository Structure](#3-repository-structure)
-4. [What Has Been Accomplished](#4-what-has-been-accomplished)
-5. [Current System Status](#5-current-system-status)
-6. [Known Issues & Blockers](#6-known-issues--blockers)
-7. [What Remains To Be Done](#7-what-remains-to-be-done)
-8. [How To Run the Project](#8-how-to-run-the-project)
-9. [Key Design Decisions & Trade-offs](#9-key-design-decisions--trade-offs)
-10. [Critical Files Reference](#10-critical-files-reference)
+**Last Updated**: April 26, 2026, 07:00 AM PKT  
+**Status**: ✅ Fully operational end-to-end  
+**LLM Provider**: Groq (Llama 3.3 70B) — real AI extraction confirmed working
 
 ---
 
-## 1. Project Overview
+## 1. What MindMirror Is
 
-MindMirror is a **Personal Behavioral Intelligence System** that transforms unstructured journal entries into quantifiable insights. The user writes free-form text about their day, and the system:
+A **Personal Behavioral Intelligence System** built for a hackathon. Users write free-form journal entries; the system uses AI to extract sentiment, tags, and triggers, then visualizes patterns over time.
 
-1. **Extracts** sentiment scores, emotional tags, and behavioral triggers using Google Gemini LLM
-2. **Stores** the enriched data in a PostgreSQL database
-3. **Analyzes** patterns across 30 days of entries using correlation math (Kendall's Tau)
-4. **Presents** actionable insights through an animated Flutter dashboard with trend charts
-
-The system was developed by 4 isolated developer branches and merged into a single integrated application.
-
----
-
-## 2. Architecture & Tech Stack
-
+**Data flow:**
 ```
-┌──────────────────────┐
-│   Flutter Frontend   │  ← Dart/Flutter (Windows/Mobile)
-│   (Provider + Dio)   │
-└──────────┬───────────┘
-           │ HTTP (localhost:8001)
-           ▼
-┌──────────────────────┐
-│   FastAPI Backend     │  ← Python 3.10 (Uvicorn)
-│   (Instructor + LLM) │
-└──────────┬───────────┘
-           │ asyncpg (port 5432)
-           ▼
-┌──────────────────────┐
-│   PostgreSQL 15.1    │  ← Supabase Postgres Docker image
-│   (JSONB columns)    │
-└──────────────────────┘
-```
-
-| Layer | Technology | Key Libraries |
-|---|---|---|
-| **Frontend** | Flutter 3.39.0-0.1.pre (beta) | `provider`, `dio`, `intl`, `CustomPainter` charts |
-| **Backend** | Python 3.10 + FastAPI | `instructor`, `google-genai`, `asyncpg`, `pydantic` |
-| **Database** | PostgreSQL 15.1 (Supabase) | JSONB columns, B-tree composite indexes |
-| **Analytics** | Python 3.10 | `scipy` (Kendall's Tau), custom seeder |
-| **Infra** | Docker Compose | 3 services: backend, supabase-db, adminer |
-
----
-
-## 3. Repository Structure
-
-```
-jrlun/
-├── .env                          # Environment variables (API keys, DB URL)
-├── docker-compose.yml            # Orchestrates all 3 containers
-│
-├── frontend/                     # Flutter application
-│   └── lib/
-│       ├── main.dart             # Entry point with MultiProvider
-│       ├── core/theme/
-│       │   └── app_theme.dart    # Material 3 theme (purple palette)
-│       ├── models/
-│       │   ├── journal_entry.dart    # JournalEntry data model
-│       │   └── insight_model.dart    # InsightModel data model
-│       ├── services/
-│       │   ├── api_config.dart       # Base URL config (localhost:8001)
-│       │   ├── journal_service.dart  # Real Dio HTTP service
-│       │   ├── insight_service.dart  # Real Dio HTTP service
-│       │   ├── mock_journal_service.dart  # Mock fallback
-│       │   └── mock_insight_service.dart  # Mock fallback
-│       ├── controllers/
-│       │   ├── journal_provider.dart     # State management (entries)
-│       │   └── insight_provider.dart     # State management (insights)
-│       └── modules/dashboard/
-│           ├── screens/
-│           │   └── dashboard_screen.dart  # Main dashboard UI
-│           └── widgets/
-│               ├── insight_card.dart          # Hero AI insight card
-│               ├── sentiment_chart.dart       # 30-day trend (CustomPainter)
-│               ├── journal_input_field.dart   # Free-text entry input
-│               └── historical_entries_feed.dart  # Past entries list
-│
-├── backend/                      # FastAPI orchestration layer
-│   ├── Dockerfile                # Container build instructions
-│   ├── requirements.txt          # Python dependencies
-│   ├── main.py                   # API endpoints + dual-mode DataService
-│   ├── models.py                 # Pydantic schemas (JournalEntry, InsightModel, etc.)
-│   └── db.py                     # asyncpg connection pool management
-│
-├── infrastructure/               # Database schema & config
-│   ├── migrations/
-│   │   ├── 001_initial_schema.sql    # Tables + indexes (hardened)
-│   │   ├── 002_seed_data.sql         # 3 sample entries (original seed)
-│   │   └── 003_seed_synthetic.sql    # 30-day synthetic dataset + insight
-│   └── docker-compose.yml            # Infrastructure-only compose (legacy)
-│
-├── analytics/                    # Data generation & correlation engine
-│   ├── generate_synthetic_month.py   # 30-day synthetic data generator
-│   ├── correlation_engine.py         # Kendall's Tau correlation analysis
-│   ├── synthetic_data.json           # Generated 30-day dataset
-│   ├── current_insight.json          # Pre-computed insight
-│   └── test_contract.py              # Schema validation tests
-│
-└── docs/                         # Documentation
-    ├── JSON_CONTRACT.md              # The single source of truth for all APIs
-    ├── POST_MERGE_ROADMAP.md         # Integration roadmap (phases 1-5)
-    ├── FRONTEND_SESSION_REPORT.md    # Frontend branch session report
-    └── TEAM_HANDOFF_PROMPTS.md       # Team handoff context
+User types journal entry
+    → Flutter frontend sends POST to FastAPI
+        → Groq LLM extracts sentiment_score, tags, triggers (structured JSON via instructor)
+            → Enriched entry stored in PostgreSQL
+                → Dashboard renders 30-day trend chart + AI insight card
 ```
 
 ---
 
-## 4. What Has Been Accomplished
+## 2. Architecture
 
-### Phase 1: Frontend ↔ Backend Connection ✅
+```
+┌─────────────────────────┐
+│   Flutter Frontend       │  Port: Chrome (Web) or Windows native
+│   Provider + Dio HTTP    │  Config: api_config.dart → localhost:8001
+└───────────┬─────────────┘
+            │ HTTP REST
+            ▼
+┌─────────────────────────┐
+│   FastAPI Backend        │  Port: 8001 (host) → 8000 (container)
+│   Groq + instructor      │  Dual-mode: Postgres OR JSON fallback
+└───────────┬─────────────┘
+            │ asyncpg
+            ▼
+┌─────────────────────────┐
+│   PostgreSQL 15.1        │  Port: 5432
+│   Supabase Docker image  │  Tables: journal_entries, insights
+└─────────────────────────┘
+```
 
-| Item | Status | Details |
-|---|---|---|
-| Real HTTP services | ✅ Done | `journal_service.dart` and `insight_service.dart` replace mocks using Dio |
-| Providers updated | ✅ Done | `JournalProvider` and `InsightProvider` accept injectable services |
-| Mock fallback preserved | ✅ Done | Uncomment 2 lines in `main.dart` to swap back to mocks |
-| API config centralized | ✅ Done | `api_config.dart` → `http://localhost:8001` |
-| Error handling | ✅ Done | Standard error format parsed from JSON contract |
+**Docker containers** (all healthy):
 
-### Phase 2: Backend LLM Integration ✅
-
-| Item | Status | Details |
-|---|---|---|
-| Google Gemini SDK | ✅ Done | Upgraded from deprecated `google.generativeai` to `google-genai` |
-| Structured extraction | ✅ Done | `instructor` library forces Gemini to return `SentimentExtraction` Pydantic model |
-| Graceful degradation | ✅ Done | If LLM fails (429 rate limit, network), defaults to `sentiment_score: 0.0`, `tags: ["general"]` |
-| Model used | ✅ Done | `gemini-1.5-flash` with `max_retries=3` |
-
-### Phase 3: Analytics Data Pipeline ✅
-
-| Item | Status | Details |
-|---|---|---|
-| Synthetic data generator | ✅ Done | `generate_synthetic_month.py` creates 30 days of realistic entries |
-| Behavioral heuristics | ✅ Done | Sleep < 6h → -0.4 sentiment drop; gym tag → +0.3 boost |
-| Correlation engine | ✅ Done | Kendall's Tau algorithm in `correlation_engine.py` |
-| Pre-computed insight | ✅ Done | `current_insight.json` with 3 correlations (sleep: 0.91, academic: 0.59, exercise: 0.36) |
-| Schema validation | ✅ Done | `test_contract.py` validates output matches `JSON_CONTRACT.md` |
-
-### Phase 4: UI/UX Polish ✅
-
-| Item | Status | Details |
-|---|---|---|
-| Shimmer loading skeletons | ✅ Done | Animated placeholder during network latency |
-| Error fallback cards | ✅ Done | Retry button when backend is offline |
-| Date parsing fix | ✅ Done | Handles malformed `+00:00Z` timestamps from analytics |
-| Chart hover interaction | ✅ Done | `_indexFromX` using `RenderBox` for tap-to-inspect |
-| Date formatting | ✅ Done | `intl` DateFormat for tooltips and feed |
-| Sentiment chart | ✅ Done | Pure `CustomPainter` spline (Syncfusion removed due to Flutter beta incompatibility) |
-| Material 3 theme | ✅ Done | Purple tonal palette per design system spec |
-
-### Phase 5: Docker Infrastructure ✅
-
-| Item | Status | Details |
-|---|---|---|
-| Docker Compose | ✅ Done | 3 services: backend (8001), supabase-db (5432), adminer (8080) |
-| DB healthcheck | ✅ Done | Backend waits for Postgres via `depends_on` + `pg_isready` |
-| SQL migrations | ✅ Done | Hardened — `pg_jsonschema` fails gracefully, tables always created |
-| Synthetic data seeded | ✅ Done | 30 entries + 1 insight auto-loaded via `003_seed_synthetic.sql` |
-| Backend DB wiring | ✅ Done | `asyncpg` pool, dual-mode (Postgres or JSON fallback) |
-| Persistent volume | ✅ Done | `pgdata` volume survives container restarts |
+| Container | Image | Port | Role |
+|---|---|---|---|
+| `mindmirror-backend` | Custom Python 3.10 | 8001 | API + LLM orchestration |
+| `supabase-db` | supabase/postgres:15.1.0.147 | 5432 | PostgreSQL database |
+| `adminer` | adminer | 8080 | DB admin UI |
 
 ---
 
-## 5. Current System Status
+## 3. What Was Built — Detailed Breakdown
 
-### Containers (as of April 26, 2026)
+### 3.1 Frontend (Flutter)
 
-| Container | Image | Status | Port |
-|---|---|---|---|
-| `supabase-db` | `supabase/postgres:15.1.0.147` | ✅ Healthy | `localhost:5432` |
-| `mindmirror-backend` | `jrlun-backend` (custom) | ✅ Running (DATABASE mode) | `localhost:8001` |
-| `adminer` | `adminer` | ✅ Running | `localhost:8080` |
+**Tech**: Flutter 3.39.0-0.1.pre (beta), Provider for state, Dio for HTTP, CustomPainter for charts.
 
-### API Endpoints (Verified Working)
+#### File-by-file:
 
-| Endpoint | Method | Status | Notes |
-|---|---|---|---|
-| `/api/v1/entries` | GET | ✅ 200 | Returns paginated entries from Postgres |
-| `/api/v1/entries` | POST | ✅ 201 | Creates entry with LLM extraction (or fallback) |
-| `/api/v1/insights/current` | GET | ✅ 200 | Returns latest insight from Postgres |
-
-### Database Contents
-
-| Table | Row Count | Notes |
+| File | Purpose | Key Details |
 |---|---|---|
-| `journal_entries` | 33 | 30 synthetic + 3 original seed entries |
-| `insights` | 2 | 1 synthetic + 1 original seed insight |
+| `main.dart` | App entry point | `MultiProvider` injects `JournalProvider` + `InsightProvider`. Commented lines allow instant swap to mock services. |
+| `app_theme.dart` | Material 3 theme | Purple tonal palette (`#800080` primary, `#E6E6FA` insight container, `#F3E5F5` surface). Light + dark themes defined. |
+| `api_config.dart` | API routing | `baseUrl: http://localhost:8001`, paths: `/api/v1/entries`, `/api/v1/insights/current` |
+| `journal_entry.dart` | Data model | Parses JSON from backend. Handles malformed `+00:00Z` timestamps. Fields: id, user_id, raw_text, sentiment_score, tags, triggers, created_at. |
+| `insight_model.dart` | Data model | Parses insight JSON. Fields: id, user_id, summary, correlations[], suggested_action, generated_at. |
+| `journal_service.dart` | HTTP service | Dio-backed. `getHistoricalEntries(limit, offset)` and `submitEntry(rawText)`. Parses standard error format. |
+| `insight_service.dart` | HTTP service | Dio-backed. `getCurrentInsight()`. |
+| `mock_journal_service.dart` | Mock fallback | 5 hardcoded entries for offline demo. |
+| `mock_insight_service.dart` | Mock fallback | 1 hardcoded insight for offline demo. |
+| `journal_provider.dart` | State mgmt | `fetchEntries()`, `addEntry(text)`, `clearError()`. Exposes `entries`, `isLoading`, `error`. |
+| `insight_provider.dart` | State mgmt | `fetchCurrentInsight()`. Exposes `currentInsight`, `isLoading`, `error`. |
+| `dashboard_screen.dart` | Main UI | Composes all widgets. Pull-to-refresh. 60s auto-refresh timer for insight. Shimmer loaders during loading. Error fallback cards with retry buttons. |
+| `insight_card.dart` | Hero widget | `AnimatedSwitcher` with 300ms cross-fade. Uses `primaryContainer` color. Dynamically bolds trigger words in summary via `RichText`. Shows `auto_awesome` icon + suggested action. |
+| `sentiment_chart.dart` | Trend chart | Pure `CustomPainter` (no Syncfusion). Animated spline line with gradient fill. Horizontal gridlines at -1, -0.5, 0, 0.5, 1. Hover/tap interaction shows date + score tooltip. 900ms draw animation on load. |
+| `journal_input_field.dart` | Text input | Minimalist multiline input. Submit button in primary color. |
+| `historical_entries_feed.dart` | Entry list | Scrollable list of past entries with sentiment chips and date formatting via `intl`. |
+
+#### How the frontend connects to the backend:
+
+1. `DashboardScreen.initState()` calls `fetchEntries()` and `fetchCurrentInsight()`
+2. Providers call their respective services (`JournalService`, `InsightService`)
+3. Services use Dio to make HTTP requests to `http://localhost:8001/api/v1/...`
+4. Responses are parsed into `JournalEntry` / `InsightModel` dart objects
+5. Providers call `notifyListeners()` → UI rebuilds via `Consumer` widgets
+
+#### Mock fallback mechanism:
+
+In `main.dart`, swap these two lines:
+```dart
+// Real (default):
+ChangeNotifierProvider(create: (_) => JournalProvider()),
+// Mock (offline):
+ChangeNotifierProvider(create: (_) => JournalProvider(service: MockJournalService())),
+```
 
 ---
 
-## 6. Known Issues & Blockers
+### 3.2 Backend (FastAPI + Groq)
 
-### 🔴 Critical: Gemini API Rate Limiting (429)
+**Tech**: Python 3.10, FastAPI, Groq SDK, instructor (structured LLM output), asyncpg (Postgres driver), Pydantic.
 
-- **What**: The Google Gemini API key hits `429 RESOURCE_EXHAUSTED (limit: 0)` when submitting new journal entries
-- **Why**: The Google Cloud project backing the API key does not have a billing account linked. Google now requires billing even for the free tier.
-- **Impact**: New entries get saved with fallback values (`sentiment_score: 0.0`, `tags: ["general"]`) instead of real AI extraction
-- **Workaround in place**: The backend catches the error gracefully — the app doesn't crash
-- **Fix**: Go to [Google Cloud Console](https://console.cloud.google.com) → select the project → Billing → Link a billing account. The `limit: 0` restriction will lift immediately. No code changes needed.
+#### Core Design: Dual-Mode DataService
 
-### 🟡 Minor: `pg_jsonschema` Extension Unavailable
+The `DataService` class in `main.py` operates in two modes:
 
-- **What**: The `supabase/postgres:15.1.0.147` Docker image doesn't have the `pg_jsonschema` extension available (requires `supabase_admin` role)
-- **Impact**: JSON schema validation constraints are skipped. Data integrity relies on application-level validation (Pydantic models) instead of database-level constraints.
-- **Workaround in place**: Migration wrapped in `DO $$ ... EXCEPTION` block — tables are created successfully without the constraints
-- **Fix**: Use the full Supabase self-hosted stack (which includes the admin role) or validate at the application layer (already done via Pydantic)
+**DATABASE mode** (when `DATABASE_URL` env var is set):
+- All reads → `SELECT` from Postgres via asyncpg
+- All writes → `INSERT` into Postgres via asyncpg
+- Activated automatically when Docker stack is running
 
-### 🟡 Minor: Flutter Beta Version Lock
+**JSON-FILE mode** (when `DATABASE_URL` is not set):
+- Loads `analytics/synthetic_data.json` into memory on startup
+- New entries appended to in-memory list
+- Useful for running backend standalone without Docker
 
-- **What**: Frontend built on Flutter `3.39.0-0.1.pre` (beta channel)
-- **Impact**: If running on Flutter stable, you may need to adjust:
-  - `CardThemeData` → `CardTheme`
-  - `.withValues(alpha:)` → `.withOpacity()`
-  - `surfaceContainerHighest` → `surfaceVariant`
-- **Fix**: Run `flutter channel beta && flutter upgrade` or manually adjust the 3 API calls in `app_theme.dart`
+#### LLM Extraction Pipeline:
+
+```python
+# 1. User submits: "I am exhausted from studying all night"
+# 2. Backend creates Groq client with instructor wrapper
+groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+client = instructor.from_groq(groq_client)
+
+# 3. Calls Llama 3.3 70B with structured output schema
+extracted = client.chat.completions.create(
+    model="llama-3.3-70b-versatile",
+    response_model=SentimentExtraction,  # Pydantic model
+    messages=[system_prompt, user_text],
+    max_retries=3
+)
+# 4. Returns: sentiment_score=-0.8, tags=["exhausted","studying"], triggers=["lack of sleep"]
+# 5. Clamped to [-1.0, 1.0], stored in Postgres
+```
+
+**Fallback**: If Groq fails for any reason, returns `(0.0, ["general"], [])` — the app never crashes.
+
+#### API Endpoints:
+
+| Endpoint | Method | Request | Response | Status |
+|---|---|---|---|---|
+| `/api/v1/entries` | GET | `?limit=10&offset=0` | `{data: [JournalEntry[]], meta: {total, has_more}}` | ✅ Working |
+| `/api/v1/entries` | POST | `{"raw_text": "..."}` | Single enriched `JournalEntry` | ✅ Working (real AI) |
+| `/api/v1/insights/current` | GET | — | Single `InsightModel` | ✅ Working |
+
+#### File-by-file:
+
+| File | Purpose |
+|---|---|
+| `main.py` | FastAPI app, CORS, DataService (dual-mode), 3 API endpoints, row converters |
+| `models.py` | Pydantic schemas: JournalEntry, InsightModel, Correlation, EntryRequest, ErrorModel |
+| `db.py` | asyncpg connection pool lifecycle (init_db, close_db, get_pool) |
+| `Dockerfile` | Python 3.10 slim, installs deps, copies backend + analytics, runs uvicorn |
+| `requirements.txt` | fastapi, uvicorn, pydantic, instructor, groq, asyncpg |
 
 ---
 
-## 7. What Remains To Be Done
+### 3.3 Database (PostgreSQL)
 
-### High Priority (For Demo)
+**Image**: `supabase/postgres:15.1.0.147`
 
-| # | Task | Effort | Details |
-|---|---|---|---|
-| 1 | **Enable Gemini API billing** | 5 min | Link billing account in Google Cloud Console. Zero code changes. |
-| 2 | **Test real LLM extraction** | 10 min | Submit a journal entry from the Flutter app, verify tags/triggers/sentiment are real (not fallback). |
-| 3 | **Run Flutter frontend against Docker** | 5 min | `flutter run` — should connect to `localhost:8001` automatically. Verify the 30-day chart renders. |
-| 4 | **Record the demo** | 30 min | Walk through: write entry → see AI extraction → view trend chart → read insight card. |
+#### Schema (`001_initial_schema.sql`):
 
-### Medium Priority (Polish)
+```sql
+-- journal_entries
+id             UUID PRIMARY KEY (auto-generated)
+user_id        UUID NOT NULL
+raw_text       TEXT NOT NULL
+sentiment_score NUMERIC(3,2) CHECK (-1.0 to 1.0)
+tags           JSONB DEFAULT '[]'
+triggers       JSONB DEFAULT '[]'
+created_at     TIMESTAMPTZ DEFAULT NOW()
 
-| # | Task | Effort | Details |
-|---|---|---|---|
-| 5 | **Real-time insight regeneration** | 2 hrs | Currently the insight is pre-computed. Add a backend endpoint that re-runs `correlation_engine.py` against the DB and updates the `insights` table when new entries are added. |
-| 6 | **Multi-user support** | 1 hr | Currently hardcoded to `user_id: 4e3c9a57-...`. Add user auth (Supabase Auth) and filter queries by authenticated user. |
-| 7 | **Insight card auto-refresh** | 30 min | Add a periodic timer or pull-to-refresh that re-fetches the insight every 60s so the `AnimatedSwitcher` cross-fade fires during the demo. |
-| 8 | **Pagination in UI** | 30 min | Frontend currently fetches first 10 entries. Add "Load More" button using the `has_more` meta field. |
+-- insights
+id              UUID PRIMARY KEY
+user_id         UUID NOT NULL
+summary         TEXT NOT NULL
+correlations    JSONB DEFAULT '[]'
+suggested_action TEXT NOT NULL
+generated_at    TIMESTAMPTZ DEFAULT NOW()
+```
 
-### Low Priority (Post-Hackathon)
+**Indexes**: Composite B-tree on `(user_id, created_at DESC)` for both tables.
 
-| # | Task | Effort | Details |
-|---|---|---|---|
-| 9 | Dark mode testing | 30 min | Theme is defined but may need visual QA |
-| 10 | Supabase Auth integration | 2 hrs | Replace hardcoded user_id with real JWT-based auth |
-| 11 | Flutter Web build | 1 hr | Deploy frontend as a static web app (currently Windows-only) |
-| 12 | CI/CD pipeline | 2 hrs | GitHub Actions for automated testing and Docker image builds |
-| 13 | Production Supabase | 1 hr | Replace local Docker Supabase with Supabase Cloud for persistent hosting |
+**pg_jsonschema**: The migration attempts to add JSON schema validation constraints but wraps them in an exception handler. On this Docker image they're skipped (missing `supabase_admin` role) — data integrity is enforced at the application layer via Pydantic instead.
+
+#### Seed Data:
+
+| Migration | Content |
+|---|---|
+| `002_seed_data.sql` | 3 sample entries + 1 insight (original infrastructure branch) |
+| `003_seed_synthetic.sql` | 30 entries spanning March 26 – April 24, 2026 + 1 pre-computed insight with 3 correlations |
+
+**Total in DB**: 33+ journal entries, 2 insights (plus any entries submitted during testing).
 
 ---
 
-## 8. How To Run the Project
+### 3.4 Analytics Pipeline
 
-### Prerequisites
+**Tech**: Python 3.10, scipy (Kendall's Tau).
 
-- **Docker Desktop** (installed and running)
-- **Flutter SDK** (3.39.0-0.1.pre beta, or adjust `app_theme.dart` for stable)
-- **Google API Key** with billing enabled (optional — app works without it using fallback values)
+| File | Purpose |
+|---|---|
+| `generate_synthetic_month.py` | Generates 30 days of realistic journal entries with injected behavioral heuristics |
+| `correlation_engine.py` | Runs Kendall's Tau correlation analysis across the dataset |
+| `synthetic_data.json` | Output: 30 entries with realistic sentiment patterns |
+| `current_insight.json` | Output: Pre-computed insight with 3 correlations |
+| `test_contract.py` | Validates output matches `docs/JSON_CONTRACT.md` schema |
 
-### Option A: Full Docker Stack (Recommended)
+**Injected Heuristics**:
+- Sleep < 6 hours → sentiment drops by -0.4
+- Tags include "gym" → sentiment boosts by +0.3
+- Weekend days → slight positive boost
+
+**Pre-computed correlations**:
+- "lack of sleep" → negative impact, confidence: 0.91
+- "academic pressure" → negative impact, confidence: 0.59
+- "exercise" → positive impact, confidence: 0.36
+
+---
+
+### 3.5 Docker Infrastructure
+
+**File**: `docker-compose.yml` at project root.
+
+Key configurations:
+- Backend maps `8001:8000` (matches Flutter's `api_config.dart`)
+- Backend `depends_on` supabase-db with healthcheck (`pg_isready`)
+- Backend restarts on failure
+- Migrations auto-run via `/docker-entrypoint-initdb.d` mount
+- Persistent `pgdata` volume survives container restarts
+- `GROQ_API_KEY` and `DATABASE_URL` passed from `.env`
+
+---
+
+## 4. Integration History (Chronological)
+
+| Session | What Was Done |
+|---|---|
+| **Analytics (Session 1)** | Generated 30-day synthetic data with behavioral heuristics. Built correlation engine. Validated against JSON contract. |
+| **Integration (Session 2)** | Merged all 4 branches. Wired Flutter frontend to FastAPI backend via Dio. Replaced mock services. Fixed date parsing bugs. Built shimmer loaders and error states. Integrated Google Gemini with instructor for structured extraction. Hit 429 rate limit blocker. Prepared Docker architecture. |
+| **Docker (Session 3, current)** | Fixed docker-compose (ports, healthcheck, depends_on). Hardened SQL migrations. Created `db.py` asyncpg module. Refactored `main.py` to dual-mode (DB + JSON fallback). Converted synthetic data to SQL seed. Spun up full Docker stack — all 3 containers healthy. Switched from Gemini to Groq (Llama 3.3 70B) — AI extraction now fully working. Verified end-to-end: Flutter → FastAPI → Groq → Postgres → Flutter. |
+
+---
+
+## 5. What Remains
+
+### For the Demo (< 1 hour)
+
+| Task | Effort | Notes |
+|---|---|---|
+| UI touchups | 30 min | Visual polish for the hackathon pitch |
+| Record demo video | 15 min | Write entry → see AI tags → view chart → read insight |
+
+### Future Improvements
+
+| Task | Effort | Notes |
+|---|---|---|
+| Real-time insight regeneration | 2 hrs | Re-run correlation engine when new entries are added |
+| Multi-user auth | 1-2 hrs | Supabase Auth, filter by authenticated user_id |
+| Pagination UI | 30 min | "Load More" button using `has_more` meta field |
+| Dark mode QA | 30 min | Theme is defined but needs visual testing |
+| Flutter Web production build | 1 hr | `flutter build web` for static hosting |
+
+---
+
+## 6. How to Run
 
 ```powershell
-# 1. Navigate to project root
+# Start everything
 cd c:\Users\u2023629\Documents\Hackathon\jrlun
-
-# 2. Start all services (builds backend, starts Postgres, seeds data)
 docker compose up --build -d
 
-# 3. Verify everything is healthy
-docker compose ps
+# Verify
+docker compose ps                    # All 3 containers should be "Up"
+docker logs mindmirror-backend       # Should show "DATABASE mode (Postgres)"
 
-# 4. Check backend connected to DB
-docker logs mindmirror-backend 2>&1 | Select-Object -Last 5
-# Should show: "[OK] Backend running in DATABASE mode (Postgres)"
-
-# 5. Run the Flutter frontend
+# Run Flutter
 cd frontend
-flutter run
+flutter run -d chrome                # Web
+flutter run -d windows               # Windows native
 
-# 6. (Optional) View database via Adminer
-# Open http://localhost:8080 in browser
-# Server: supabase-db | User: postgres | Password: postgres | DB: postgres
-```
+# Test API manually
+Invoke-WebRequest -Uri "http://localhost:8001/api/v1/entries" -UseBasicParsing
+Invoke-WebRequest -Uri "http://localhost:8001/api/v1/entries" -Method POST -ContentType "application/json" -Body '{"raw_text":"Test entry"}' -UseBasicParsing
 
-### Option B: Backend Only (No Docker, JSON Fallback)
+# View database
+# Open http://localhost:8080 → Server: supabase-db, User: postgres, Pass: postgres
 
-```powershell
-# Without DATABASE_URL set, backend falls back to JSON files
-cd c:\Users\u2023629\Documents\Hackathon\jrlun
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8001
-
-# In another terminal
-cd frontend
-flutter run
-```
-
-### Stopping Everything
-
-```powershell
-docker compose down       # Stop containers (data persists in volume)
-docker compose down -v    # Stop containers AND delete database volume
+# Stop
+docker compose down        # Keep data
+docker compose down -v     # Delete data
 ```
 
 ---
 
-## 9. Key Design Decisions & Trade-offs
+## 7. Environment Variables (`.env`)
 
-### Dual-Mode Backend
-The backend's `DataService` checks for `DATABASE_URL` at startup. If present, all operations use `asyncpg` against Postgres. If absent, it loads `synthetic_data.json` into memory. This ensures the demo never breaks — even if Docker is down, the backend serves data.
-
-### Mock-First Fallback in Frontend
-The `main.dart` has commented-out lines to swap real services for mock services. During the demo, if the backend crashes, you can hot-restart with mocks in under 10 seconds.
-
-### Hardened Migrations
-The `pg_jsonschema` extension requires a specific Supabase admin role. Rather than failing the entire DB init, we wrapped the constraints in exception handlers. Tables and data are always created; JSON validation constraints are a bonus.
-
-### CustomPainter Over Syncfusion
-The sentiment chart was rewritten as a pure `CustomPainter` because `syncfusion_flutter_charts 24.x` is incompatible with Flutter 3.39 beta. This eliminated an external dependency at the cost of more manual drawing code.
-
-### Single User ID
-For hackathon speed, all entries use a hardcoded `user_id`. This is the obvious first thing to change for a production system.
-
----
-
-## 10. Critical Files Reference
-
-### The JSON Contract (Source of Truth)
-**File**: [`docs/JSON_CONTRACT.md`](docs/JSON_CONTRACT.md)  
-Defines the exact shape of `JournalEntry`, `InsightModel`, error responses, and all API endpoints. Every branch was built against this contract. **Do not change field names without updating all 4 layers.**
-
-### Environment Variables
-**File**: [`.env`](.env)
-
-| Variable | Value | Used By |
-|---|---|---|
-| `GOOGLE_API_KEY` | `AIzaSy...` | Backend (Gemini LLM extraction) |
-| `DATABASE_URL` | `postgresql://postgres:postgres@supabase-db:5432/postgres` | Backend (asyncpg pool) |
-
-### API Configuration
-**File**: [`frontend/lib/services/api_config.dart`](frontend/lib/services/api_config.dart)
-
-```dart
-static const String baseUrl = 'http://localhost:8001';
-static const String entriesPath = '/api/v1/entries';
-static const String insightPath = '/api/v1/insights/current';
+```
+bhenchod api key nae daaltay docs mein
 ```
 
-### Docker Compose Services
-
-| Service | Container Name | Ports | Image |
-|---|---|---|---|
-| backend | `mindmirror-backend` | `8001:8000` | Custom (Python 3.10) |
-| supabase-db | `supabase-db` | `5432:5432` | `supabase/postgres:15.1.0.147` |
-| adminer | `adminer` | `8080:8080` | `adminer` (latest) |
+> ⚠️ `.env` is in `.gitignore` — will not be committed. Anyone cloning the repo needs to create their own.
 
 ---
 
-*This report was generated on April 26, 2026. For the most up-to-date status, check `docker compose ps` and the backend logs.*
+## 8. Key Design Decisions
+
+| Decision | Rationale |
+|---|---|
+| **Dual-mode backend** | If Docker is down, backend still serves JSON data. Demo never breaks. |
+| **Mock service fallback** | 2-line swap in `main.dart` returns to hardcoded data. Emergency demo recovery. |
+| **Groq over Gemini** | Gemini required billing setup (429 blocker). Groq's free tier has generous limits and sub-second latency. |
+| **CustomPainter over Syncfusion** | Syncfusion 24.x incompatible with Flutter 3.39 beta. Custom chart eliminated the dependency. |
+| **instructor for structured output** | Forces LLM to return exact Pydantic schema. No parsing or regex needed. Retries on malformed output. |
+| **Hardened migrations** | pg_jsonschema wrapped in exception handler. Tables always created even if extension unavailable. |
+| **Single user_id** | Hardcoded for hackathon speed. First thing to change for production. |

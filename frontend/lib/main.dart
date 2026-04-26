@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/controllers/insight_provider.dart';
 import 'package:frontend/controllers/journal_provider.dart';
-import 'package:frontend/modules/app_shell.dart';
+import 'package:frontend/modules/splash/screens/splash_screen.dart';
 
 // To fall back to mock services if the backend is down, uncomment these:
 // import 'package:frontend/services/mock_journal_service.dart';
@@ -36,7 +36,7 @@ class MindMirrorApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      home: const AppShell(),
+      home: const SplashScreen(),
     );
   }
 }

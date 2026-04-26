@@ -19,10 +19,12 @@ class JournalService {
     int offset = 0,
   }) async {
     try {
+      print('🌍 [Frontend] GET request to ${ApiConfig.baseUrl}${ApiConfig.entriesPath}?limit=$limit&offset=$offset');
       final response = await _dio.get(
         ApiConfig.entriesPath,
         queryParameters: {'limit': limit, 'offset': offset},
       );
+      print('✅ [Frontend] GET response received: \${response.statusCode}');
 
       final data = response.data;
       final List<dynamic> entriesJson = data['data'] ?? [];
@@ -30,7 +32,9 @@ class JournalService {
           .map((e) => JournalEntry.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
+      print('❌ [Frontend] GET request failed: \${e.message}');
       final errorMsg = _extractErrorMessage(e);
+      print('❌ [Frontend] Error parsed: $errorMsg');
       throw Exception(errorMsg);
     }
   }
@@ -38,14 +42,21 @@ class JournalService {
   /// Submit a new journal entry and receive the enriched result.
   Future<JournalEntry> submitEntry(String rawText) async {
     try {
+      print('🌍 [Frontend] POST request to ${ApiConfig.baseUrl}${ApiConfig.entriesPath} with payload: $rawText');
       final response = await _dio.post(
         ApiConfig.entriesPath,
         data: {'raw_text': rawText},
       );
+      print('✅ [Frontend] POST response received: \${response.statusCode} - \${response.data}');
 
       return JournalEntry.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      print('❌ [Frontend] POST request failed: \${e.message}');
+      if (e.response != null) {
+        print('❌ [Frontend] Error response data: \${e.response?.data}');
+      }
       final errorMsg = _extractErrorMessage(e);
+      print('❌ [Frontend] Error parsed: $errorMsg');
       throw Exception(errorMsg);
     }
   }
